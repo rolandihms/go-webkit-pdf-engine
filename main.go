@@ -63,14 +63,6 @@ func main() {
 		})
 	})
 
-	//View for when only HTML is provided
-	app.Get("/html-view", func(c *fiber.Ctx) error {
-		// Render index template
-		return c.Render("html-view", fiber.Map{
-			"Html": "Hello, World!",
-		})
-	})
-
 	//Create a POST endpoint for Sending in URL endpoint for the PDF
 	app.Post("/url-to-pdf", func(c *fiber.Ctx) error {
 		body := new(RequestPayload)

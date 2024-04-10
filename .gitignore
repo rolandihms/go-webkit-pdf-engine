@@ -1,3 +1,4 @@
 .env
 public/*
+!public/index.html
 tmp
