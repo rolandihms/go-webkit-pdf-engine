@@ -43,6 +43,7 @@ A simple Go/Fiber api that handles generating PDF documents form HTML input or U
 5. Implement Templ templating, compare vs mustache and plain HTML
 6. Allow option to respond with raw file data instead of the URL
 7. Clean HTML input and sanitize
+8. Clean public/ folder or delete temp files after generating from html
 
 ### Issues
 

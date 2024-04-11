@@ -1,0 +1,103 @@
+FROM golang:1.22-bullseye AS BuildStage
+
+# Install wkhtmltopdf
+ENV DIR=/usr/local/bin/
+
+#Change directory so that our commands run inside this new directory
+WORKDIR $DIR
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    curl libxrender1 libfontconfig libxtst6 xz-utils fontconfig libjpeg62-turbo xfonts-75dpi xfonts-base;
+
+ENV WKHTML_VERSION 0.12.4
+
+# Builds the wkhtmltopdf download URL based on version number above
+#ENV DOWNLOAD_URL "https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTML_VERSION}/wkhtmltox-${WKHTML_VERSION}_linux-generic-amd64.tar.xz" -L -o "wkhtmltopdf.tar.xz"
+ENV DOWNLOAD_URL "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.stretch_amd64.deb" -L -o "wkhtmltox_0.12.6-1.stretch_amd64.deb"
+
+
+# Download and extract wkhtmltopdf
+RUN curl $DOWNLOAD_URL
+#RUN tar Jxvf wkhtmltopdf.tar.xz
+#RUN cp wkhtmltox/bin/wkhtmltopdf $DIR
+
+RUN dpkg -i wkhtmltox_0.12.6-1.stretch_amd64.deb
+
+# # SEt WKHTMLTOPDF_PATH
+# ENV WKHTMLTOPDF_PATH $DIR
+
+
+# # Install dependencies
+# RUN apt-get update && apt-get install -y \
+#         libx11-6 \
+#         libxrender1 \
+#         libssl1.1 \
+#         ca-certificates \
+#         fontconfig \
+#         libxtst6  \
+#         libfontconfig \
+#         xfonts-75dpi 
+
+# RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.2/wkhtmltox-0.12.2_linux-wheezy-amd64.deb
+# RUN dpkg -i wkhtmltox-0.12.2_linux-wheezy-amd64.deb && ldconfig
+
+
+#CHange back to main Dir
+WORKDIR /app
+
+# Copy and download dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the source code
+COPY . .
+# Build the Go application
+RUN CGO_ENABLED=1 GOOS=linux go build -o pdf-service .
+
+#EXPOSE 3000
+#USER noroot:noroot
+
+#Start the container with the application
+#ENTRYPOINT ["/app/pdf-service"]
+
+# # Builder to copy wkhtmltopdf binaries for alpine
+# FROM surnet/alpine-wkhtmltopdf:3.16.2-0.12.6-full as wkhtmltopdf
+# # wkhtmltopdf install dependencies
+# RUN apk add --no-cache \
+#         libstdc++ \
+#         libx11 \
+#         libxrender \
+#         libxext \
+#         libssl1.1 \
+#         ca-certificates \
+#         fontconfig \
+#         freetype \
+#         ttf-droid \
+#         ttf-freefont \
+#         ttf-liberation \
+#         # more fonts
+#         ;
+
+
+# Deploy the application
+FROM alpine:latest
+
+WORKDIR /app
+
+#COPY --from=BuildStage /usr/local/bin/wkhtmltox/ /usr/local/bin
+#COPY --from=BuildStage /usr/local/bin/wkhtmltox /usr/local/bin/wkhtmltox
+#COPY --from=wkhtmltopdf /bin/wkhtmltopdf /bin/libwkhtmltox.so /bin/
+
+COPY --from=BuildStage /app/ .
+
+# Set the timezone and install CA certificates
+RUN apk --no-cache add ca-certificates tzdata
+# SEt WKHTMLTOPDF_PATH
+#ENV WKHTMLTOPDF_PATH /usr/wkhtmltopdf
+
+EXPOSE 3000
+#USER noroot:noroot
+
+#Start the container with the application
+ENTRYPOINT ["/app/pdf-service"]

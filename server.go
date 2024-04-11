@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -83,6 +84,8 @@ func main() {
 	e.Renderer = renderer
 	e.Static("/static", "public")
 
+	//e.Use(middleware.Logger())
+
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "index.html", map[string]interface{}{
 			"name": "Rick James",
@@ -109,6 +112,9 @@ func main() {
 				Errors:     "Raw HTML input is required to generate the PDF",
 			})
 		}
+
+		//log.Println("HTML:", body.Html)
+
 		// Assert if Title is not empty
 		if body.Title == "" {
 			return c.JSON(http.StatusBadRequest, &ResponsePayload{
@@ -122,9 +128,22 @@ func main() {
 		timestamp := time.Now().Unix()
 		timestampstring := strconv.Itoa(int(timestamp))
 
+		//JSON Decode the HTML and save it to a file
+		jsonDataReader := strings.NewReader(body.Html)
+		decoder := json.NewDecoder(jsonDataReader)
+		var html string
+		jsonerr := decoder.Decode(&html)
+		if jsonerr != nil {
+			return c.JSON(http.StatusBadRequest, &ResponsePayload{
+				Status:     "error",
+				StatusCode: "400",
+				Message:    "Could Not decode HTML",
+				Errors:     jsonerr.Error(),
+			})
+		}
 		//grab the html inpt and create a static file in teh public directory
 		filename := timestampstring + "_" + strings.Replace(body.Title, " ", "_", -1)
-		err := os.WriteFile("./public/"+filename+".html", []byte(body.Html), 0644)
+		err := os.WriteFile("./public/"+filename+".html", []byte(html), 0644)
 		if err != nil {
 
 			c.JSON(http.StatusBadRequest, &ResponsePayload{
