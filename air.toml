@@ -1,11 +1,6 @@
 # air.toml
-root = ".dsd"
+root = "."
 tmp_dir = "tmp"
 build_cmd = "go build -o ./tmp/main ."
 run_cmd = "./tmp/main"
-testdata_dir = "public"
-exclude_dir = ["public", "tmp", "vendor", "test"]
-# Exclude files.
-exclude_file = ["./public/test.html"]
-[build]
-    exclude_dir = ["public", "tmp", "vendor", "test"]
+
