@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html>
+    <body>
+        <h1>Hello {{index . "name"}}</h1>
 
-<head>
-    <title>Home</title>
-</head>
-
-<body>
-    <h1>Home {{.Title}}</h1>
-    <p>Welcome to the home page! dsds sd ds ds dsd s  sd sdsd</p>
-</body>
-
+        <p>{{ with $x := index . "reverse" }}
+           {{ call $x "foobar" }} &lt;-- this will call the $x with parameter "foobar"
+           {{ end }}
+        </p>
+    </body>
 </html>

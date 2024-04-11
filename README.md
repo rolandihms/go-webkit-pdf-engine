@@ -42,7 +42,28 @@ A simple Go/Fiber api that handles generating PDF documents form HTML input or U
 4. Document the path and including the Webkit binary
 5. Implement Templ templating, compare vs mustache and plain HTML
 6. Allow option to respond with raw file data instead of the URL
+7. Clean HTML input and sanitize
 
 ### Issues
 
 Webkit running older version of CSS. No border radius and other limitations
+
+
+Rename to aod_pdf_api
+
+Port to echo
+
+Interface iplementation
+
+Pass context into The GeneratePDFDocument ->
+
+Context todo...
+
+Dependency injection...
+
+Understand.
+
+SOLID principles
+
+Loosely Coupled
+
