@@ -1,0 +1,12 @@
+version: "3"
+services:
+    pdf-api:
+        #build: .
+        image: rolandihms/html-pdf-api
+        volumes:
+            - ./public:/public/
+        # environment:
+        #   WKHTMLTOPDF_PATH: ${WKHTMLTOPDF_PATH}
+        #   PORT: ${PORT}
+        ports:
+            - "3005:3000"
