@@ -1,8 +1,12 @@
 version: "3"
 services:
     pdf-api:
-        #build: .
+        restart: unless-stopped
+        # build:
+        #   context: .
+        #   dockerfile: Dockerfile
         image: rolandihms/html-pdf-api
+        container_name: pdf-api
         volumes:
             - ./public:/public/
         # environment:
@@ -10,3 +14,8 @@ services:
         #   PORT: ${PORT}
         ports:
             - "3005:3000"
+        networks:
+            - nginx-proxy
+networks:
+  nginx-proxy:
+    external: true
